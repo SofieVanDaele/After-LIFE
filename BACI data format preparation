@@ -1,0 +1,327 @@
+library(tidyverse)
+library(dplyr)
+library(readr)
+setwd("F:/MSc thesis/Data for Analysis/Final Intersections")
+
+file_paths <- list.files(path = "F:/MSc thesis/Data for Analysis/Final Intersections", full.names = TRUE)
+
+# Read all files and bind them into a single dataframe
+Merged <- lapply(file_paths, function(file) {
+  read_delim(file, delim = ";", escape_double = FALSE, 
+             col_types = "ccccinniiiiccccccc", trim_ws = TRUE)
+}) %>% 
+  bind_rows()%>%
+  setNames(make.names(names(.)))  # Ensure unique column names
+  #select_if(~any(!is.na(.))) #to remove empty columns
+
+view(Merged)
+write.csv2(Merged, "F:/MSc thesis/Data for Analysis/Final Intersections/Final intersections ALL COUNTRIES.csv",row.names = TRUE)
+
+### Loading in the dataset ####
+Final_intersections_ALL_COUNTRIES <- read_delim("Final intersections ALL COUNTRIES.csv", 
+                                                delim = ";", escape_double = FALSE, col_types = cols(individualCount = col_integer(), 
+                                                                                                     decimalLatitude = col_number(), decimalLongitude = col_number(), 
+                                                                                                     coordinateUncertaintyInMeters = col_integer(), 
+                                                                                                     day = col_integer(), month = col_integer(), 
+                                                                                                     year = col_integer()), locale = locale(grouping_mark = "."), 
+                                                na = "NA", trim_ws = TRUE)
+View(Final_intersections_ALL_COUNTRIES)
+Merged <- Final_intersections_ALL_COUNTRIES[, -1]
+write.csv2(Merged, "F:/MSc thesis/Data for Analysis/Final Intersections/Final intersections ALL COUNTRIES complete.csv", row.names = TRUE)
+View(Merged)
+
+#construction jaren definieren
+Merge=Merged %>%
+  mutate(Constr_year=
+           case_when(
+             layer=="Oostkustpolders - Ter Doest" ~ 2016, #included
+             layer=="BE - Ref polders"  ~ 2016, #included
+             layer=="Oostkustpolders - Zwaanhoek" ~ 2015, #included
+             layer=="BE - Ref polders2"  ~ 2015, #included
+             layer=="Oostkustpolders - Sint-Donaaspolder" ~ 2016, #included
+             layer=="BE - Ref polders3"  ~ 2016, #included
+             layer=="Oostkustpolders - Damme" ~ 2016, #included
+             layer=="BE - Ref polders4"  ~ 2016, #included
+             layer=="Zwin" ~ 2015, #included
+             layer=="Ref - Verdronken Zwarte Polder"  ~ 2015, #included
+             layer=="Kalmthoutse Heide - Stappersven" ~ 2018, #included
+             layer=="BE - Ref Kalmthoutse Heide" ~ 2018, #included
+             layer=="Kalmthoutse Heide - Kleine Meer" ~ 2017, #included
+             layer=="BE - Ref Kalmthoutse Heide2" ~ 2017, #included
+             layer=="Kalmthoutse Heide - Grote Meer" ~ 2017, #included
+             layer=="BE - Ref Kalmthoutse Heide" ~ 2017, #included
+             layer=="Netevallei - Heiberg Snepkensvijver" ~ 2015, #included
+             layer=="BE - Ref Netevallei" ~ 2015,#included
+             layer=="Schelde Estuarium Polders" ~ 2017, #included
+             layer=="BE - Ref Kruibeke" ~ 2017, #included
+             #################################
+             layer=="Eggemoore - Sauerbachtal Bülheim" ~ 2016, #NOT included (/)
+             layer=="DE - Ref Schwarzes bruch" ~ 2016, #NOT included (/)
+             layer=="Eggemoore - Schwarzes Bruch" ~ 2016, #included (/)
+             layer=="DE - Ref Schwarzes bruch" ~ 2016, #NOT included (/)
+             layer=="Eggemoore - Eselsbett" ~ 2018, #included
+             layer=="DE - Ref Eselsbett" ~ 2018, #included
+             layer=="DE - Rheinbogen" ~ 2017, #included
+             layer=="DE - Ref Rheinbogen" ~ 2017, #included
+             layer=="German Danube - Ostliche Donauauen" ~ 2012, #included
+             layer=="DE - Ref German Danube" ~ 2012, #included
+             layer=="German Danube - Ostliches Donauried" ~ 2009, #included
+             layer=="DE - Ref German Danube" ~ 2012, #included
+             layer=="German Danube - Mertinger Ried" ~ 2012,#included
+             layer=="DE - Ref Mertinger Ried" ~ 2012, #included
+             layer=="German Danube - Eppisburger Ried" ~ 2012, #included
+             layer=="DE - Ref Eppisburger Ried" ~ 2012, #included
+             layer=="German Danube - Donaumoos" ~ 2012, #included
+             layer=="DE - Ref Donaumoos" ~ 2012, #included
+             #################################
+             layer=="Danish Coastal Habitats - Ejstrup Klit" ~ 2017,
+             layer=="DK - Ref Ejstrup Klit" ~ 2017, ##was DK - Ref Danish Coastal Habitats 1
+             layer=="Danish Coastal Habitats - Bulbjerg og Vejlerne" ~ 2015,
+             layer=="DK - Ref Bulbjerg og Vejlerne" ~ 2015, ##was DK - Ref Danish Coastal Habitats 4
+             layer=="Danish Coastal Habitats - Hanstholm Knuden" ~ 2018,
+             layer=="DK - Ref Hanstholm Knuden" ~ 2018, ##was DK - Ref Danish Coastal Habitats 1
+             layer=="Danish Coastal Habitats - Hanstholm Reservatet" ~ 2018,
+             layer=="DK - Ref Hanstholm Reservatet" ~ 2018, #was DK - Ref Danish Coastal Habitats 2
+             layer=="Danish Coastal Habitats - Vangsa" ~ 2018,
+             layer=="DK - Ref Vangsa" ~ 2018, ##was DK - Ref Danish Coastal Habitats 1
+             layer=="Danish Coastal Habitats - Alvand" ~ 2018,
+             layer=="DK - Ref Alvand" ~ 2018, ##was DK - Ref Danish Coastal Habitats 4
+             layer=="Danish Coastal Habitats - Lyngby Klitheder" ~ 2018,
+             layer=="DK - Ref Lyngby Klitheder" ~ 2018, ##was DK - Ref Danish Coastal Habitats 2
+             layer=="Danish Coastal Habitats - Agger Tange" ~ 2018,
+             layer=="DK - Ref Agger Tange" ~ 2018, ##was DK - Ref Danish Coastal Habitats 2
+             layer=="Danish Coastal Habitats - Harboere Tange" ~ 2017,
+             layer=="DK - Ref Harboere Tange" ~ 2017, ##was DK - Ref Danish Coastal Habitats 2
+             layer=="Danish Coastal Habitats - Husby Klit" ~ 2016,
+             layer=="DK - Ref Husby Klit" ~ 2016, ##was DK - Ref Danish Coastal Habitats 4
+             layer=="Danish Coastal Habitats - Lyngbos Hede" ~ 2017,
+             layer=="DK - Ref Lyngbos Hede" ~ 2017, ##was DK - Ref Danish Coastal Habitats 4
+             layer=="Danish Coastal Habitats - Kallesmaersk Hede" ~ 2017,
+             layer=="DK - Ref Kallesmaersk Hede" ~ 2017, ##was DK - Ref Danish Coastal Habitats 1
+             layer=="Danish Coastal Habitats - Fano" ~ 2015,
+             layer=="DK - Ref Danish Coastal Habitats - Fano" ~ 2015,
+             layer=="Eastern Bogs - Sandlyng Mose" ~ 2014,
+             layer=="DK - Ref Eastern Bogs" ~ 2014,
+             layer=="Eastern Bogs - Horreby Lyng" ~ 2016,
+             layer=="DK - Ref Eastern Bogs Horreby Lyng"~ 2016,
+             layer=="Bojden Nor" ~ 2012,
+             layer=="DK - Ref Bojden Nor" ~ 2012,
+             layer=="Rewetdune - Hulsig Hede" ~ 2018,
+             layer=="DK - Ref Hulsig Hede" ~ 2018,
+             layer=="Rewetdune - Grenen" ~ 2018,
+             layer=="DK - Ref Grenen" ~ 2018,
+             layer=="Laesoe" ~ 2013,
+             layer=="DK - Ref Laesoe"~ 2013,
+             #################################
+             layer=="Kokemaënjoki - Isisuo fens1" ~ 2009, #included
+             layer=="Kokemaënjoki - Isisuo fens2" ~ 2009, #included
+             layer=="Kokemaënjoki - Isisuo fens3" ~ 2009, #included
+             layer=="Kokemaënjoki - Isisuo fens4" ~ 2009, #included
+             layer=="FI - Ref Isisuo Fens1" ~ 2009, #NOT included
+             layer=="FI - Ref Isisuo Fens2" ~ 2009, #NOT included
+             layer=="Kokemaënjoki - Enajarvi" ~ 2009, #included
+             layer=="FI - Ref Enajarvi" ~ 2009, #included
+             layer=="Kokemäenjoki - Raijalanjarvi" ~ 2009, #included
+             layer=="FI - Ref Raijalanjarvi" ~ 2009, #included
+             layer=="Kokemaënjoki - Puurijarvi" ~ 2010, #included
+             layer=="FI - Ref Puurijarvi" ~ 2010, #NOT included
+             layer=="Kotiseutukosteikko - Vuorela" ~ 2013, #NOT included
+             layer=="FI - Ref Vuorela" ~ 2013, #NOT included
+             layer=="Kotiseutukosteikko - Pohtiolampi" ~ 2013, #included
+             layer=="FI - Ref Pohtiolampi" ~ 2013, #included
+             layer=="Kotiseutukosteikko - Kulmala" ~ 2013, #included
+             layer=="FI - Ref Kulmala" ~ 2013, #included
+             layer=="Kotiseutukosteikko - Kurjenneva" ~ 2013, #included
+             layer=="FI - Ref Kurjenneva" ~ 2013,
+             #################################
+             layer=="Bittern - Zwarte Meer" ~ 2016,
+             layer=="NL - Ref Zwarte Meer - 3150" ~ 2016,
+             layer=="Bittern - Drontermeer" ~ 2015,
+             layer=="NL - Ref Drontermeer - akker" ~ 2015,
+             layer=="Dutch Fens - Rottige Meente" ~ 2018,
+             layer=="NL - Ref Rottige Meente" ~ 2018,
+             layer=="Dutch Fens - De Wieden" ~ 2016,
+             layer=="NL - Ref - De Wieden" ~ 2016,
+             layer=="Dutch Fens - Wormer- en Jisperveld" ~ 2016,
+             layer=="NL - Ref - Wormer- en Jisperveld" ~ 2016,
+             layer=="Dutch Fens - Naardermeer" ~ 2016,
+             layer=="NL - Ref Naardermeer" ~ 2016,
+             layer=="Dutch Fens - Vechtplassen - Westbroekse Zodden" ~ 2016,
+             layer=="NL - Ref - Westbroekse Zodden" ~ 2016,
+             layer=="Dutch Fens - Vechtplassen - Molenpolder" ~ 2017,
+             layer=="NL - Ref - Molenpolder" ~ 2017,
+             layer=="Dutch Fens - Vechtplassen - Ankeveense plassen" ~ 2016,
+             layer=="NL - Ref - Ankeveense Plassen" ~ 2016,
+             layer=="Dutch Fens - Botshol" ~ 2016,
+             layer=="NL - Ref Botshol" ~ 2016,
+             layer=="Dutch Fens - Nieuwkoopse plassen" ~ 2016,
+             layer=="NL - Ref Nieuwkoopse plassen" ~ 2016,
+             layer=="Fochteloërveën" ~ 2013,
+             layer=="NL - Ref - Fochteloërveën" ~ 2013,
+             layer=="Alde Feanen" ~ 2019,
+             layer=="NL - Ref - Peelvenen" ~ 2019,
+             layer=="Peelvenen - Deurnsche Peel" ~ 2013,
+             layer=="NL - Ref - Peelvenen" ~ 2013,
+             layer=="Peelvenen - Groote Peel" ~ 2017,
+             layer=="NL - Ref - Peelvenen" ~ 2017,
+             #################################
+             layer=="Triple Lakes - Lockne" ~ 2016, #included
+             layer=="Triple Lakes - Revsund" ~ 2016, #included
+             layer=="Triple Lakes - Nakten" ~ 2016, #included
+             layer=="SE - Ref Triple Lakes 1" ~ 2016, #included
+             layer=="SE - Ref Triple Lakes 2" ~ 2016, #included
+             layer=="SE - Ref Triple Lakes 3" ~ 2016, #included but only 1 obsv
+             layer=="SE - Ref Triple Lakes 4" ~ 2016, #included
+             layer=="SE - Ref Triple Lakes 5" ~ 2016)) #included
+
+unique(Merged$layer)
+View(Merge)
+
+#per wetland
+t=Merge%>%
+  filter(layer=="Oostkustpolders - Ter Doest") %>%
+  mutate(time=factor(case_when(
+    year == (Constr_year+3) ~ "+3",
+    year == (Constr_year+2) ~ "+2",
+    year == (Constr_year+1) ~ "+1",
+    year == Constr_year ~ "0",
+    year == (Constr_year-1) ~ "-1",
+    year == (Constr_year-2) ~ "-2",
+    year == (Constr_year-3) ~ "-3"),levels=c("-3","-2","-1","0","+1","+2","+3")))%>%
+  filter(time == "+3"|
+           time == "+2"|
+           time == "+1"|
+           time == "0"|
+           time == "-1"|
+           time == "-2"|
+           time == "-3")%>%
+  group_by(layer,species,time,recordedBy,.drop=FALSE)
+
+#aantal observaties berekenen
+Observations=t %>%
+  group_by(layer,time)%>%
+  count(.drop=FALSE)%>%
+  rename(Observations=n)
+
+#observers berekenen
+Observers=t %>%
+  group_by(layer,time,recordedBy)%>%
+  count() %>%
+  select(-n) %>%
+  group_by(layer,time)%>%
+  count() %>%
+  rename(Observers=n)
+#Richness
+Richness=t%>%
+  group_by(layer,time,species)%>%
+  count()%>%
+  select(-n) %>%
+  group_by(layer,time)%>%
+  count() %>%
+  rename(Richness=n)
+
+
+out=t %>%
+  group_by(layer,species,time,.drop=FALSE)%>%
+  count(wt=individualCount,.drop=FALSE) %>%
+  pivot_wider(names_from=species,values_from=n, names_sort=TRUE)%>%
+  mutate(BA = factor(case_when(
+    time == "-3" ~ 0,
+    time == "-2" ~ 0,
+    time == "-1" ~ 0,
+    time == "0" ~ NA,
+    time == "+1" ~ 1,
+    time == "+2" ~ 1,
+    time == "+3" ~ 1), 
+    levels=c("0","1",NA)
+  ))%>%
+  mutate_if(is.numeric, ~replace_na(., 0))%>%  # NA waarden worden 0
+  relocate(BA, .before = time) %>%
+  left_join(Observers)%>%
+  relocate(Observers,.after=time)%>%
+  left_join(Observations)%>%
+  relocate(Observations,.after=time)%>%
+  left_join(Richness)%>%
+  relocate(Richness,.after=time)
+
+
+#####
+setwd("F:/MSc thesis/Data for Analysis/Country data ready for Analysis")
+output= data.frame(layer=NA,BA=NA,time=NA,Richness=NA,Observers=NA,Observations=NA)
+for (area in unique(Merge$layer)) {
+  t=Merge%>%
+    filter(layer==area) %>%
+    mutate(time=factor(case_when(
+      year == (Constr_year+3) ~ "+3",
+      year == (Constr_year+2) ~ "+2",
+      year == (Constr_year+1) ~ "+1",
+      year == Constr_year ~ "0",
+      year == (Constr_year-1) ~ "-1",
+      year == (Constr_year-2) ~ "-2",
+      year == (Constr_year-3) ~ "-3"),levels=c("-3","-2","-1","0","+1","+2","+3")))%>%
+    filter(time == "+3"|
+             time == "+2"|
+             time == "+1"|
+             time == "0"|
+             time == "-1"|
+             time == "-2"|
+             time == "-3")%>%
+    group_by(layer,species,time,recordedBy,.drop=FALSE)
+  
+  #aantal observaties berekenen
+  Observations=t %>%
+    group_by(layer,time)%>%
+    count(.drop=FALSE)%>%
+    rename(Observations=n)
+  
+  #observers berekenen
+  Observers=t %>%
+    group_by(layer,time,recordedBy)%>%
+    count() %>%
+    filter(!is.na(recordedBy))  %>%
+    select(-n) %>%
+    group_by(layer,time)%>%
+    count() %>%
+    rename(Observers=n)
+  #Richness
+  Richness=t%>%
+    group_by(layer,time,species)%>%
+    count()%>%
+    filter(!is.na(species))%>%
+    select(-n) %>%
+    group_by(layer,time)%>%
+    count() %>%
+    rename(Richness=n)
+  
+  
+  out=t %>%
+    group_by(layer,species,time,.drop=FALSE)%>%
+    count(wt=individualCount,.drop=FALSE) %>%
+    pivot_wider(names_from=species,values_from=n, names_sort=TRUE)%>%
+    mutate(BA = factor(case_when(
+      time == "-3" ~ 0,
+      time == "-2" ~ 0,
+      time == "-1" ~ 0,
+      time == "0" ~ NA,
+      time == "+1" ~ 1,
+      time == "+2" ~ 1,
+      time == "+3" ~ 1), 
+      levels=c("0","1",NA)
+    ))%>%
+    mutate_if(is.numeric, ~replace_na(., 0))%>%  # NA waarden worden 0
+    relocate(BA, .before = time) %>%
+    left_join(Observers)%>%
+    relocate(Observers,.after=time)%>%
+    left_join(Observations)%>%
+    relocate(Observations,.after=time)%>%
+    left_join(Richness)%>%
+    relocate(Richness,.after=time)
+  
+  output=bind_rows(list(output,out))
+  
+}
+output %>%
+  filter(!is.na(layer)) %>%
+  mutate_if(is.numeric, ~replace_na(., 0))%>%
+  write.csv2("All_countries_species.csv",row.names = TRUE)
+View(All_countries_species)
